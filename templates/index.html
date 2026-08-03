@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinguaLeap — Translate Anything, Anywhere</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --ink: #14213d;
+        --ink-soft: #3a4762;
+        --paper: #faf6ee;
+        --paper-alt: #f1ead9;
+        --card: #ffffff;
+        --gold: #c99a2e;
+        --gold-dark: #a87f22;
+        --sage: #5c7a6b;
+        --border: #ddd3bc;
+        --danger: #b3432b;
+        --shadow: 0 20px 50px -20px rgba(20, 33, 61, 0.25);
+    }
+    [data-theme="dark"] {
+        --ink: #f2ede1;
+        --ink-soft: #cfc6b4;
+        --paper: #10131c;
+        --paper-alt: #181c28;
+        --card: #1b1f2c;
+        --gold: #e0b64c;
+        --gold-dark: #c99a2e;
+        --sage: #8fae9d;
+        --border: #333850;
+        --shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.6);
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: 'IBM Plex Sans', sans-serif;
+        background: var(--paper);
+        color: var(--ink);
+        min-height: 100vh;
+        padding: 32px 16px 70px;
+        transition: background 0.3s, color 0.3s;
+        background-image: radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 0);
+        background-size: 22px 22px;
+        background-attachment: fixed;
+    }
+    .wrap { max-width: 1000px; margin: 0 auto; }
+
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 28px;
+        border-bottom: 2px solid var(--ink);
+        padding-bottom: 14px;
+    }
+    .brand-mark {
+        font-family: 'Fraunces', serif;
+        font-weight: 700;
+        font-size: 30px;
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+    }
+    .brand-mark .stamp {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--gold-dark);
+        border: 1.5px solid var(--gold-dark);
+        border-radius: 999px;
+        padding: 3px 9px;
+        letter-spacing: 0.08em;
+        transform: rotate(-4deg);
+    }
+    .top-actions { display: flex; gap: 8px; align-items: center; }
+    .icon-btn {
+        background: none;
+        border: 1.5px solid var(--ink);
+        border-radius: 8px;
+        width: 38px; height: 38px;
+        cursor: pointer;
+        font-size: 15px;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--ink);
+    }
+    .icon-btn:hover { background: var(--ink); color: var(--paper); }
+
+    .tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .tab-btn {
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 10px 4px;
+        margin-right: 28px;
+        cursor: pointer;
+        font-size: 13px;
+        font-family: 'IBM Plex Mono', monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--ink-soft);
+        font-weight: 500;
+    }
+    .tab-btn.active { color: var(--ink); border-bottom-color: var(--gold); font-weight: 600; }
+
+    .card {
+        background: var(--card);
+        border-radius: 6px;
+        box-shadow: var(--shadow);
+        padding: 0;
+        border: 1px solid var(--border);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+    .card-inner { padding: 26px 28px; }
+
+    .lang-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+        padding-bottom: 16px;
+        border-bottom: 1px dashed var(--border);
+    }
+    .lang-field { flex: 1; position: relative; }
+    .lang-field .eyebrow {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--sage);
+        margin-bottom: 4px;
+        display: block;
+    }
+    select {
+        width: 100%;
+        padding: 9px 10px;
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        font-size: 15px;
+        font-family: 'Fraunces', serif;
+        font-weight: 600;
+        background: var(--paper);
+        color: var(--ink);
+        cursor: pointer;
+    }
+    .swap-btn {
+        background: var(--gold);
+        color: var(--ink);
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 16px;
+        width: 40px; height: 40px;
+        flex-shrink: 0;
+        margin-top: 16px;
+        font-weight: 700;
+    }
+    .swap-btn:hover { background: var(--gold-dark); }
+
+    .split { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0; align-items: stretch; }
+    .perforation { display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding: 0 10px; }
+    .perforation .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border); }
+    @media (max-width: 720px) {
+        .split { grid-template-columns: 1fr; }
+        .perforation { flex-direction: row; padding: 10px 0; }
+    }
+
+    .panel-label {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--sage);
+        margin-bottom: 8px;
+        display: flex; justify-content: space-between;
+    }
+    textarea {
+        width: 100%;
+        min-height: 170px;
+        padding: 14px;
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        font-size: 15.5px;
+        resize: vertical;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: 'IBM Plex Sans', sans-serif;
+        line-height: 1.5;
+    }
+    textarea:focus, select:focus { outline: none; border-color: var(--gold); }
+
+    .output-box {
+        min-height: 170px;
+        background: var(--paper-alt);
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        padding: 14px;
+        white-space: pre-wrap;
+        font-size: 15.5px;
+        line-height: 1.5;
+    }
+    .output-box.placeholder { color: var(--ink-soft); font-style: italic; }
+
+    .controls-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
+    button.chip {
+        background: none;
+        color: var(--ink);
+        border: 1.5px solid var(--ink);
+        border-radius: 6px;
+        padding: 9px 14px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        display: flex; align-items: center; gap: 6px;
+        font-family: 'IBM Plex Sans', sans-serif;
+    }
+    button.chip:hover { background: var(--ink); color: var(--paper); }
+    button.chip.active { background: var(--danger); color: #fff; border-color: var(--danger); }
+    button.primary {
+        background: var(--ink);
+        color: var(--paper);
+        border: none;
+        border-radius: 6px;
+        padding: 11px 20px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: 'IBM Plex Sans', sans-serif;
+    }
+    button.primary:hover { background: var(--gold-dark); }
+    .spacer { flex: 1; }
+    .toggle-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-soft); font-family: 'IBM Plex Mono', monospace; }
+
+    .error { color: var(--danger); margin-top: 12px; font-size: 13px; font-family: 'IBM Plex Mono', monospace; }
+    .char-count { font-size: 11px; color: var(--sage); font-family: 'IBM Plex Mono', monospace; text-transform: none; letter-spacing: 0; }
+
+    .lang-picker-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .lang-chip {
+        border: 1.5px dashed var(--border);
+        background: var(--paper);
+        color: var(--ink-soft);
+        padding: 6px 13px;
+        border-radius: 999px;
+        font-size: 12.5px;
+        font-family: 'IBM Plex Mono', monospace;
+        cursor: pointer;
+    }
+    .lang-chip.selected { background: var(--ink); color: var(--paper); border-color: var(--ink); border-style: solid; }
+    .multi-results { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 700px) { .multi-results { grid-template-columns: 1fr; } }
+    .multi-result-card { background: var(--paper-alt); border: 1.5px solid var(--border); border-radius: 6px; padding: 14px; position: relative; }
+    .multi-result-card .lang-name { font-family: 'Fraunces', serif; font-size: 13px; font-weight: 700; color: var(--gold-dark); margin-bottom: 6px; }
+
+    .history-item { border-bottom: 1px dashed var(--border); padding: 13px 0; font-size: 14px; }
+    .history-item:last-child { border-bottom: none; }
+    .history-meta { font-size: 10.5px; color: var(--sage); margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; }
+    .history-item .orig { color: var(--ink-soft); }
+    .history-item .arrow { color: var(--gold-dark); margin: 0 6px; }
+    .empty-state { text-align: center; color: var(--ink-soft); padding: 34px 0; font-size: 13.5px; font-family: 'IBM Plex Mono', monospace; }
+
+    .upload-zone {
+        border: 2px dashed var(--border);
+        border-radius: 6px;
+        padding: 22px;
+        text-align: center;
+        color: var(--ink-soft);
+        font-size: 13px;
+        cursor: pointer;
+        margin-bottom: 18px;
+        font-family: 'IBM Plex Mono', monospace;
+    }
+    .upload-zone:hover { border-color: var(--gold); color: var(--gold-dark); }
+    .file-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; margin-bottom: 18px; }
+    .file-badge { font-family: 'IBM Plex Mono', monospace; font-size: 12px; background: var(--paper-alt); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; }
+
+    .hidden { display: none !important; }
+    audio { width: 100%; margin-top: 12px; }
+    ::selection { background: var(--gold); color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+    <header>
+        <div class="brand-mark">LinguaLeap <span class="stamp">TRANSLATED &amp; STAMPED</span></div>
+        <div class="top-actions">
+            <button class="icon-btn" id="themeToggle" title="Toggle dark mode">🌙</button>
+        </div>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="translate">Translate</button>
+        <button class="tab-btn" data-tab="multi">Multi-Language</button>
+        <button class="tab-btn" data-tab="history">History</button>
+    </div>
+
+    <div id="tab-translate">
+        <div class="card">
+            <div class="card-inner">
+                <div class="lang-row">
+                    <div class="lang-field">
+                        <span class="eyebrow">From</span>
+                        <select id="sourceLang">
+                            {% for code, name in languages.items() %}
+                                <option value="{{ code }}" {% if code == 'auto' %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button class="swap-btn" onclick="swapLanguages()" title="Swap languages">⇄</button>
+                    <div class="lang-field">
+                        <span class="eyebrow">To</span>
+                        <select id="targetLang">
+                            {% for code, name in languages.items() %}
+                                {% if code != 'auto' %}
+                                    <option value="{{ code }}" {% if code == 'ur' %}selected{% endif %}>{{ name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="upload-zone" id="uploadZone">
+                    📄 Drop a .txt / .docx / .pdf file — or click to upload
+                    <input type="file" id="fileInput" accept=".txt,.docx,.pdf" class="hidden">
+                </div>
+                <div class="file-actions hidden" id="fileActions">
+                    <span class="file-badge" id="fileBadge"></span>
+                    <button class="chip" id="downloadFileBtn" onclick="downloadTranslatedFile()">⬇ Translate &amp; Download Same Format</button>
+                    <span class="char-count" id="fileStatus"></span>
+                </div>
+
+                <div class="split">
+                    <div>
+                        <div class="panel-label">
+                            <span>Original</span>
+                            <span class="char-count" id="charCount">0 chars</span>
+                        </div>
+                        <textarea id="inputText" placeholder="Type, paste, or use the mic to speak..."></textarea>
+                    </div>
+                    <div class="perforation">
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                    </div>
+                    <div>
+                        <div class="panel-label">
+                            <span>Translation</span>
+                            <span id="liveStatus" class="char-count"></span>
+                        </div>
+                        <div class="output-box placeholder" id="outputBox">Translation will appear here...</div>
+                    </div>
+                </div>
+
+                <div class="error" id="errorMsg"></div>
+
+                <div class="controls-row">
+                    <button class="primary" onclick="translateText()">Translate</button>
+                    <button class="chip" id="micBtn" onclick="toggleMic()">🎤 Speak</button>
+                    <button class="chip" onclick="copyText()">📋 Copy</button>
+                    <button class="chip" onclick="speakText()">🔊 Listen</button>
+                    <button class="chip" id="favBtn" onclick="toggleFavorite()">⭐ Save</button>
+                    <div class="spacer"></div>
+                    <label class="toggle-row">
+                        <input type="checkbox" id="liveToggle" checked> Live translate
+                    </label>
+                </div>
+
+                <audio id="audioPlayer" class="hidden" controls></audio>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-multi" class="hidden">
+        <div class="card">
+            <div class="card-inner">
+                <div class="panel-label"><span>Text to translate</span></div>
+                <textarea id="multiInputText" placeholder="Type text to translate into several languages at once..." style="margin-bottom:18px;"></textarea>
+
+                <div class="panel-label"><span>Pick target languages</span></div>
+                <div class="lang-picker-grid" id="langPickerGrid"></div>
+
+                <button class="primary" onclick="translateMulti()">Translate to Selected</button>
+                <div class="error" id="multiErrorMsg"></div>
+
+                <div class="multi-results" id="multiResults" style="margin-top:18px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-history" class="hidden">
+        <div class="card">
+            <div class="card-inner">
+                <div class="controls-row" style="margin-top:0; margin-bottom: 10px;">
+                    <strong style="font-family:'Fraunces',serif;">Recent &amp; Saved</strong>
+                    <div class="spacer"></div>
+                    <button class="chip" onclick="clearHistory()">🗑 Clear history</button>
+                </div>
+                <div id="historyList"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const LANGUAGE_NAMES = {{ languages | tojson }};
+
+const themeToggle = document.getElementById("themeToggle");
+function applyTheme(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    themeToggle.textContent = t === "dark" ? "☀️" : "🌙";
+}
+applyTheme(localStorage.getItem("ll_theme") || "light");
+themeToggle.onclick = () => {
+    const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    localStorage.setItem("ll_theme", cur);
+    applyTheme(cur);
+};
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        ["translate", "multi", "history"].forEach(t => {
+            document.getElementById("tab-" + t).classList.toggle("hidden", t !== btn.dataset.tab);
+        });
+        if (btn.dataset.tab === "history") renderHistory();
+    };
+});
+
+const inputText = document.getElementById("inputText");
+const outputBox = document.getElementById("outputBox");
+const errorMsg = document.getElementById("errorMsg");
+const charCount = document.getElementById("charCount");
+const liveStatus = document.getElementById("liveStatus");
+const liveToggle = document.getElementById("liveToggle");
+
+inputText.addEventListener("input", () => {
+    charCount.textContent = inputText.value.length + " chars";
+    if (liveToggle.checked) debouncedTranslate();
+});
+
+let debounceTimer;
+function debouncedTranslate() {
+    clearTimeout(debounceTimer);
+    if (!inputText.value.trim()) {
+        outputBox.textContent = "Translation will appear here...";
+        outputBox.classList.add("placeholder");
+        return;
+    }
+    liveStatus.textContent = "typing...";
+    debounceTimer = setTimeout(() => translateText(true), 600);
+}
+
+async function translateText(isLive = false) {
+    const text = inputText.value.trim();
+    const source = document.getElementById("sourceLang").value;
+    const target = document.getElementById("targetLang").value;
+    errorMsg.textContent = "";
+
+    if (!text) {
+        errorMsg.textContent = "Please enter some text.";
+        return;
+    }
+
+    if (!isLive) { outputBox.textContent = "Translating..."; outputBox.classList.add("placeholder"); }
+    liveStatus.textContent = "translating...";
+
+    try {
+        const res = await fetch("/translate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text, source, target })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            outputBox.textContent = data.translated;
+            outputBox.classList.remove("placeholder");
+            liveStatus.textContent = "";
+            saveHistory(text, data.translated, source, target);
+        } else {
+            outputBox.textContent = "";
+            errorMsg.textContent = data.error || "Something went wrong.";
+            liveStatus.textContent = "";
+        }
+    } catch (err) {
+        errorMsg.textContent = "Could not reach the server.";
+        liveStatus.textContent = "";
+    }
+}
+
+function swapLanguages() {
+    const src = document.getElementById("sourceLang");
+    const tgt = document.getElementById("targetLang");
+    if (src.value === "auto") return;
+    const temp = src.value;
+    src.value = tgt.value;
+    tgt.value = temp;
+    if (inputText.value.trim()) translateText();
+}
+
+function copyText() {
+    const text = outputBox.textContent;
+    if (!text || outputBox.classList.contains("placeholder")) return;
+    navigator.clipboard.writeText(text);
+}
+
+async function speakText() {
+    const text = outputBox.textContent;
+    const target = document.getElementById("targetLang").value;
+    if (!text || outputBox.classList.contains("placeholder")) return;
+
+    const res = await fetch("/speak", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, lang: target })
+    });
+
+    if (res.ok) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const player = document.getElementById("audioPlayer");
+        player.classList.remove("hidden");
+        player.src = url;
+        player.play();
+    }
+}
+
+const micBtn = document.getElementById("micBtn");
+let recognition = null;
+let listening = false;
+
+function toggleMic() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        errorMsg.textContent = "Voice input isn't supported in this browser.";
+        return;
+    }
+    if (listening) {
+        recognition.stop();
+        return;
+    }
+    recognition = new SpeechRecognition();
+    const source = document.getElementById("sourceLang").value;
+    recognition.lang = source === "auto" ? "en-US" : source;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => { listening = true; micBtn.classList.add("active"); micBtn.textContent = "🎙️ Listening..."; };
+    recognition.onend = () => { listening = false; micBtn.classList.remove("active"); micBtn.textContent = "🎤 Speak"; };
+    recognition.onerror = () => { listening = false; micBtn.classList.remove("active"); micBtn.textContent = "🎤 Speak"; };
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        inputText.value = (inputText.value ? inputText.value + " " : "") + transcript;
+        charCount.textContent = inputText.value.length + " chars";
+        translateText();
+    };
+    recognition.start();
+}
+
+const uploadZone = document.getElementById("uploadZone");
+const fileInput = document.getElementById("fileInput");
+const fileActions = document.getElementById("fileActions");
+const fileBadge = document.getElementById("fileBadge");
+const fileStatus = document.getElementById("fileStatus");
+let currentFile = null;
+
+uploadZone.onclick = () => fileInput.click();
+uploadZone.ondragover = (e) => { e.preventDefault(); uploadZone.style.borderColor = "var(--gold)"; };
+uploadZone.ondragleave = () => { uploadZone.style.borderColor = "var(--border)"; };
+uploadZone.ondrop = (e) => {
+    e.preventDefault();
+    uploadZone.style.borderColor = "var(--border)";
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+};
+fileInput.onchange = () => { if (fileInput.files.length) handleFile(fileInput.files[0]); };
+
+async function handleFile(file) {
+    errorMsg.textContent = "";
+    currentFile = file;
+    fileBadge.textContent = "📎 " + file.name;
+    fileActions.classList.remove("hidden");
+    fileStatus.textContent = "";
+
+    const formData = new FormData();
+    formData.append("file", file);
+    const originalLabel = uploadZone.innerHTML;
+    uploadZone.textContent = "Reading " + file.name + "...";
+    try {
+        const res = await fetch("/extract", { method: "POST", body: formData });
+        const data = await res.json();
+        if (res.ok) {
+            inputText.value = data.text;
+            charCount.textContent = inputText.value.length + " chars";
+            translateText();
+        } else {
+            errorMsg.textContent = data.error || "Could not read that file.";
+        }
+    } catch (err) {
+        errorMsg.textContent = "Upload failed.";
+    } finally {
+        uploadZone.innerHTML = originalLabel;
+        document.getElementById("uploadZone").appendChild(fileInput);
+    }
+}
+
+async function downloadTranslatedFile() {
+    if (!currentFile) return;
+    const source = document.getElementById("sourceLang").value;
+    const target = document.getElementById("targetLang").value;
+    fileStatus.textContent = "Translating full file — this can take a moment for longer documents...";
+    errorMsg.textContent = "";
+
+    const formData = new FormData();
+    formData.append("file", currentFile);
+    formData.append("source", source);
+    formData.append("target", target);
+
+    try {
+        const res = await fetch("/translate-file", { method: "POST", body: formData });
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            errorMsg.textContent = data.error || "Could not translate that file.";
+            fileStatus.textContent = "";
+            return;
+        }
+        const blob = await res.blob();
+        const disposition = res.headers.get("Content-Disposition") || "";
+        const match = disposition.match(/filename="?([^"]+)"?/);
+        const outName = match ? match[1] : "translated_" + currentFile.name;
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = outName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        fileStatus.textContent = "Downloaded: " + outName;
+    } catch (err) {
+        errorMsg.textContent = "Could not reach the server.";
+        fileStatus.textContent = "";
+    }
+}
+
+const langPickerGrid = document.getElementById("langPickerGrid");
+const selectedMultiLangs = new Set(["ur", "fr", "ar"]);
+Object.entries(LANGUAGE_NAMES).forEach(([code, name]) => {
+    if (code === "auto") return;
+    const chip = document.createElement("div");
+    chip.className = "lang-chip" + (selectedMultiLangs.has(code) ? " selected" : "");
+    chip.textContent = name;
+    chip.dataset.code = code;
+    chip.onclick = () => {
+        if (selectedMultiLangs.has(code)) { selectedMultiLangs.delete(code); chip.classList.remove("selected"); }
+        else { selectedMultiLangs.add(code); chip.classList.add("selected"); }
+    };
+    langPickerGrid.appendChild(chip);
+});
+
+async function translateMulti() {
+    const text = document.getElementById("multiInputText").value.trim();
+    const multiErrorMsg = document.getElementById("multiErrorMsg");
+    const multiResults = document.getElementById("multiResults");
+    multiErrorMsg.textContent = "";
+    multiResults.innerHTML = "";
+
+    if (!text) { multiErrorMsg.textContent = "Please enter some text."; return; }
+    if (selectedMultiLangs.size === 0) { multiErrorMsg.textContent = "Pick at least one language."; return; }
+
+    multiResults.innerHTML = '<div class="empty-state">Translating...</div>';
+
+    try {
+        const res = await fetch("/translate-multi", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text, source: "auto", targets: Array.from(selectedMultiLangs) })
+        });
+        const data = await res.json();
+        multiResults.innerHTML = "";
+
+        if (!res.ok) { multiErrorMsg.textContent = data.error || "Something went wrong."; return; }
+
+        Object.entries(data.results || {}).forEach(([code, translated]) => {
+            const card = document.createElement("div");
+            card.className = "multi-result-card";
+            card.innerHTML = `<div class="lang-name">${LANGUAGE_NAMES[code] || code}</div>${translated}`;
+            multiResults.appendChild(card);
+        });
+        Object.entries(data.errors || {}).forEach(([code, err]) => {
+            const card = document.createElement("div");
+            card.className = "multi-result-card";
+            card.innerHTML = `<div class="lang-name">${LANGUAGE_NAMES[code] || code}</div><span style="color:var(--danger)">${err}</span>`;
+            multiResults.appendChild(card);
+        });
+    } catch (err) {
+        multiErrorMsg.textContent = "Could not reach the server.";
+    }
+}
+
+function saveHistory(original, translated, source, target) {
+    const history = JSON.parse(localStorage.getItem("ll_history") || "[]");
+    history.unshift({ original, translated, source, target, favorite: false, ts: Date.now() });
+    localStorage.setItem("ll_history", JSON.stringify(history.slice(0, 100)));
+}
+
+function renderHistory() {
+    const historyList = document.getElementById("historyList");
+    const history = JSON.parse(localStorage.getItem("ll_history") || "[]");
+    if (history.length === 0) {
+        historyList.innerHTML = '<div class="empty-state">NO ENTRIES YET — TRANSLATE SOMETHING TO BEGIN YOUR LOG</div>';
+        return;
+    }
+    historyList.innerHTML = history.map(h => `
+        <div class="history-item">
+            <div class="history-meta">${new Date(h.ts).toLocaleString()} · ${LANGUAGE_NAMES[h.source] || h.source} → ${LANGUAGE_NAMES[h.target] || h.target} ${h.favorite ? "· ⭐" : ""}</div>
+            <span class="orig">${escapeHtml(h.original)}</span><span class="arrow">→</span>${escapeHtml(h.translated)}
+        </div>
+    `).join("");
+}
+
+function clearHistory() {
+    localStorage.removeItem("ll_history");
+    renderHistory();
+}
+
+function toggleFavorite() {
+    const text = inputText.value.trim();
+    const translated = outputBox.textContent;
+    if (!text || outputBox.classList.contains("placeholder")) return;
+    const history = JSON.parse(localStorage.getItem("ll_history") || "[]");
+    const match = history.find(h => h.original === text && h.translated === translated);
+    if (match) {
+        match.favorite = !match.favorite;
+        localStorage.setItem("ll_history", JSON.stringify(history));
+        document.getElementById("favBtn").textContent = match.favorite ? "⭐ Saved" : "⭐ Save";
+    }
+}
+
+function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
