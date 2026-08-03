@@ -10,18 +10,6 @@ Persian) in translated PDFs and Word docs.
 ![Flask](https://img.shields.io/badge/flask-3.1-black)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-## 📸 Screenshots
-
-| Translate | Result |
-|---|---|
-| ![Translate tab, empty state](screenshots/01-translate-empty.png) | ![Translate tab, result](screenshots/02-translate-result.png) |
-
-| File translation | Multi-language mode |
-|---|---|
-| ![Translate & download a file in the same format](screenshots/03-file-translate.png) | ![Translate into several languages at once](screenshots/04-multi-language.png) |
-
-**History**
-![Recent & saved translations](screenshots/05-history.png)
 
 ## ✨ Features
 - Full visual redesign: parchment palette, Fraunces serif + IBM Plex
