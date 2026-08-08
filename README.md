@@ -42,7 +42,7 @@ Persian) in translated PDFs and Word docs.
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/<your-username>/lingualeap-translator.git
+git clone https://github.com/sohaibbuilds/lingualeap-translator.git
 cd lingualeap-translator
 
 # 2. (Recommended) create a virtual environment
